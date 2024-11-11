@@ -32,7 +32,7 @@
 </ul>
 <p>Para instalar pygame, ejecuta:</p>
 
-<pre><code>pip install pygame</code></pre>
+pip install pygame
 
 <h3>Ejecución de la Simulación</h3>
 <ol>
