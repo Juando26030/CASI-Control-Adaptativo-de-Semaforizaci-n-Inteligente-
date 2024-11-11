@@ -1,1 +1,9 @@
-
+{
+    "update_frequency": 60,
+    "car_speed": 2,
+    "semaforo_timing": {
+        "verde": 10,
+        "amarillo": 3,
+        "rojo": 15
+    }
+}

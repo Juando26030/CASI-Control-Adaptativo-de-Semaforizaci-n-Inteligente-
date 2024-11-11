@@ -1,0 +1,14 @@
+{
+    "semaforos": [
+        {
+            "id": 1,
+            "posicion": [100, 200],
+            "tiempos": {"verde": 10, "amarillo": 3, "rojo": 15}
+        },
+        {
+            "id": 2,
+            "posicion": [300, 400],
+            "tiempos": {"verde": 12, "amarillo": 2, "rojo": 16}
+        }
+    ]
+}

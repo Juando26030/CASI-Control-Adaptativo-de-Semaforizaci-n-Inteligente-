@@ -1,0 +1,7 @@
+{
+    "historical_traffic": [
+        {"hour": "08:00", "flow": 120},
+        {"hour": "09:00", "flow": 300},
+        {"hour": "10:00", "flow": 200}
+    ]
+}
