@@ -2,7 +2,7 @@ import pygame
 from src.interseccion import Interseccion
 from src.auto import Auto
 from src.controlador_casi import ControladorCASI
-import json
+from src.renderer import Renderer
 
 
 class Simulacion:
@@ -11,9 +11,31 @@ class Simulacion:
         self.ancho = ancho
         self.alto = alto
         self.pantalla = pygame.display.set_mode((ancho, alto))
-        self.intersecciones = [Interseccion((100, 200)), Interseccion((300, 400))]
-        self.autos = [Auto([50, 50], 1, 0)]
+
+        # Define una disposición en cuadrícula para las intersecciones
+        self.intersecciones = [
+            Interseccion((100, 100)),
+            Interseccion((300, 100)),
+            Interseccion((500, 100)),
+            Interseccion((100, 300)),
+            Interseccion((300, 300))
+        ]
+
+        # Agrega varios autos en movimiento
+        self.autos = [
+            Auto([50, 50], 1, 0),
+            Auto([150, 150], 1, 90),
+            Auto([450, 250], 1, 180),
+            Auto([250, 450], 1, 270)
+        ]
+
+        # Instancia del controlador CASI
         self.controlador = ControladorCASI(self.intersecciones)
+
+        # Instancia de Renderer para manejar la visualización
+        self.renderer = Renderer(self.pantalla)
+
+        # Reloj de actualización
         self.tiempo_actualizacion = pygame.time.Clock()
 
     def ejecutar_simulacion(self):
@@ -23,7 +45,7 @@ class Simulacion:
                     pygame.quit()
                     exit()
 
-            # Actualizar estados
+            # Actualizar estados de semáforos y autos
             self.controlador.recopilar_datos()
             self.controlador.optimizar_semaforos()
             for auto in self.autos:
@@ -31,18 +53,8 @@ class Simulacion:
             for interseccion in self.intersecciones:
                 interseccion.semaforo.actualizar()
 
-            # Renderizar
-            self.pantalla.fill((255, 255, 255))
-            self.mostrar()
+            # Renderizar usando Renderer
+            self.pantalla.fill((255, 255, 255))  # Fondo blanco
+            self.renderer.renderizar(self.intersecciones, self.autos)
             pygame.display.flip()
             self.tiempo_actualizacion.tick(60)
-
-    def mostrar(self):
-        # Dibuja intersecciones y semáforos
-        for interseccion in self.intersecciones:
-            color = {"verde": pygame.Color("green"), "amarillo": pygame.Color("yellow"), "rojo": pygame.Color("red")}
-            pygame.draw.circle(self.pantalla, color[interseccion.semaforo.color_actual], interseccion.posicion, 20)
-
-        # Dibuja autos
-        for auto in self.autos:
-            pygame.draw.circle(self.pantalla, pygame.Color("blue"), (int(auto.posicion[0]), int(auto.posicion[1])), 10)
