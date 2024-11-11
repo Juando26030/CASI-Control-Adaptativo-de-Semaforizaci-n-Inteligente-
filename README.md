@@ -29,24 +29,27 @@
 <p>Para ejecutar esta simulación, necesitas tener instalado <strong>Python 3.8 o superior</strong> y los siguientes paquetes:</p>
 <ul>
   <li><code>pygame</code> - Biblioteca para la visualización 2D en tiempo real.</li>
+  <li><code>pandas</code> - Biblioteca para la manipulación y el análisis de datos.</li>
 </ul>
 <p>Para instalar pygame, ejecuta:</p>
 
-pip install pygame
+
+    pip install pygame
+    pip install pandas
 
 <h3>Ejecución de la Simulación</h3>
 <ol>
   <li>Clona este repositorio:
 
-    <pre><code>git clone https://github.com/Juando26030/CASI-Control-Adaptativo-de-Semaforizaci-n-Inteligente-.git</code></pre>
+    git clone https://github.com/Juando26030/CASI-Control-Adaptativo-de-Semaforizaci-n-Inteligente-.git
   </li>
   <li>Navega al directorio del proyecto:
 
-    <pre><code>cd casi-semaforizacion-inteligente</code></pre>
+    cd casi-semaforizacion-inteligente
   </li>
   <li>Ejecuta el archivo principal de la simulación:
 
-    <pre><code>python main.py</code></pre>
+    python main.py
   </li>
 </ol>
 <p>La simulación comenzará y se abrirá una ventana donde podrás observar el flujo de tráfico en las intersecciones y cómo <strong>CASI</strong> adapta los semáforos en tiempo real.</p>
