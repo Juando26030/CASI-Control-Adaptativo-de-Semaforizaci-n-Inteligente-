@@ -1,7 +1,7 @@
 import json
 import pygame
-from src.interseccion import Interseccion
 from src.controlador_casi import ControladorCASI
+from src.interseccion import Interseccion
 from src.simulacion import Simulacion
 
 if __name__ == "__main__":

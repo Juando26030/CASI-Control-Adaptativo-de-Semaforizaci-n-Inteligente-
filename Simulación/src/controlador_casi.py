@@ -2,64 +2,68 @@ import pandas as pd
 import json
 import random
 
+from Simulación.src.ajuste_tiempo_semaforo import AjusteTiempoSemaforo
+
 class ControladorCASI:
     def __init__(self, intersecciones, config_path="config/settings.json"):
-        """
-        Inicializa el controlador CASI con las intersecciones y la configuración.
-        """
         self.intersecciones = intersecciones
         self.datos_trafico = pd.read_csv("data/sensor_data.csv")
-
-        # Cargar la configuración del archivo JSON
         with open(config_path) as f:
             self.config = json.load(f)
 
-        # Configuración de la velocidad y frecuencia de autos
         self.car_speed = self.config["car_speed"]
         self.car_frequency = self.config["car_frequency"]
         self.update_frequency = self.config["update_frequency"]
-
-        # Cálculo del intervalo entre autos en segundos
         self.intervalo_entre_autos = 60 / self.car_frequency
 
-        # Tiempos de semáforos independientes
-        self.tiempos_semaforo_norte_sur = self.config["semaforo_timing"]["norte_sur"]
-        self.tiempos_semaforo_este_oeste = self.config["semaforo_timing"]["este_oeste"]
+        self.ajuste_tiempos_semaforo = AjusteTiempoSemaforo("data/traffic_data.json", config_path)
+        self.actualizar_tiempos_semaforo()
 
-        # Estados de alternancia de semáforos
-        self.estado_actual = "norte_sur_verde"  # Comienza con semáforos norte-sur en verde
-        self.tiempo_estado_actual = 0  # Contador para el tiempo en el estado actual
+        # Inicializar las variables de estado
+        self.tiempo_estado_actual = 0  # Tiempo acumulado en el estado actual del semáforo
+        self.estado_actual = "norte_sur_verde"  # Estado inicial del semáforo
+
+    def actualizar_tiempos_semaforo(self):
+        self.ajuste_tiempos_semaforo.ejecutar_ajuste()
+        with open(self.ajuste_tiempos_semaforo.config_path) as f:
+            self.config = json.load(f)
+        self.tiempos_semaforo_norte_sur = self.config["semaforo_timing"]["NS"]
+        self.tiempos_semaforo_este_oeste = self.config["semaforo_timing"]["WE"]
+        self.tiempos_semaforo_sur_norte = self.config["semaforo_timing"]["SN"]
+        self.tiempos_semaforo_este_oeste_rev = self.config["semaforo_timing"]["EW"]
 
     def recopilar_datos(self):
-        """
-        Simula la recopilación de datos de tráfico para cada intersección.
-        """
         for interseccion in self.intersecciones:
             datos_sensores = interseccion.reportar_datos_sensores()
             print(f"Datos de sensores para intersección {interseccion.id}: {datos_sensores}")
 
     def optimizar_semaforos(self):
-        """
-        Alterna los semáforos entre los estados norte-sur y este-oeste basado en los tiempos de configuración.
-        """
-        # Incrementar el contador de tiempo en el estado actual
+        # Actualizar el tiempo del estado actual
         self.tiempo_estado_actual += self.update_frequency
 
-        # Definir los tiempos según el estado actual
+        # Determinar el tiempo del semáforo según el estado actual
         if self.estado_actual == "norte_sur_verde":
             tiempo_actual = self.tiempos_semaforo_norte_sur["verde"]
         elif self.estado_actual == "norte_sur_amarillo":
             tiempo_actual = self.tiempos_semaforo_norte_sur["amarillo"]
         elif self.estado_actual == "este_oeste_verde":
             tiempo_actual = self.tiempos_semaforo_este_oeste["verde"]
-        else:  # "este_oeste_amarillo"
+        elif self.estado_actual == "este_oeste_amarillo":
             tiempo_actual = self.tiempos_semaforo_este_oeste["amarillo"]
+        elif self.estado_actual == "sur_norte_verde":
+            tiempo_actual = self.tiempos_semaforo_sur_norte["verde"]
+        elif self.estado_actual == "sur_norte_amarillo":
+            tiempo_actual = self.tiempos_semaforo_sur_norte["amarillo"]
+        elif self.estado_actual == "este_oeste_rev_verde":
+            tiempo_actual = self.tiempos_semaforo_este_oeste_rev["verde"]
+        else:
+            tiempo_actual = self.tiempos_semaforo_este_oeste_rev["amarillo"]
 
-        # Verificar si se debe cambiar de estado
+        # Cambiar el estado de los semáforos cuando el tiempo del estado se haya cumplido
         if self.tiempo_estado_actual >= tiempo_actual:
-            self.tiempo_estado_actual = 0  # Reiniciar el tiempo en el nuevo estado
+            self.tiempo_estado_actual = 0
 
-            # Cambiar el estado de los semáforos según el ciclo
+            # Cambiar el estado de los semáforos en orden
             if self.estado_actual == "norte_sur_verde":
                 self.estado_actual = "norte_sur_amarillo"
             elif self.estado_actual == "norte_sur_amarillo":
@@ -68,8 +72,16 @@ class ControladorCASI:
                 self.estado_actual = "este_oeste_amarillo"
             elif self.estado_actual == "este_oeste_amarillo":
                 self.estado_actual = "norte_sur_verde"
+            elif self.estado_actual == "sur_norte_verde":
+                self.estado_actual = "sur_norte_amarillo"
+            elif self.estado_actual == "sur_norte_amarillo":
+                self.estado_actual = "este_oeste_rev_verde"
+            elif self.estado_actual == "este_oeste_rev_verde":
+                self.estado_actual = "este_oeste_rev_amarillo"
+            else:
+                self.estado_actual = "sur_norte_verde"
 
-        # Ajustar el color de los semáforos en cada intersección según el estado actual
+        # Asignar los colores de los semáforos en función del estado
         for interseccion in self.intersecciones:
             if self.estado_actual == "norte_sur_verde":
                 interseccion.semaforos["norte"].color_actual = "verde"
@@ -91,10 +103,28 @@ class ControladorCASI:
                 interseccion.semaforos["sur"].color_actual = "rojo"
                 interseccion.semaforos["este"].color_actual = "amarillo"
                 interseccion.semaforos["oeste"].color_actual = "amarillo"
+            elif self.estado_actual == "sur_norte_verde":
+                interseccion.semaforos["norte"].color_actual = "rojo"
+                interseccion.semaforos["sur"].color_actual = "rojo"
+                interseccion.semaforos["este"].color_actual = "rojo"
+                interseccion.semaforos["oeste"].color_actual = "verde"
+            elif self.estado_actual == "sur_norte_amarillo":
+                interseccion.semaforos["norte"].color_actual = "rojo"
+                interseccion.semaforos["sur"].color_actual = "rojo"
+                interseccion.semaforos["este"].color_actual = "rojo"
+                interseccion.semaforos["oeste"].color_actual = "amarillo"
+            elif self.estado_actual == "este_oeste_rev_verde":
+                interseccion.semaforos["norte"].color_actual = "rojo"
+                interseccion.semaforos["sur"].color_actual = "rojo"
+                interseccion.semaforos["este"].color_actual = "rojo"
+                interseccion.semaforos["oeste"].color_actual = "verde"
+            elif self.estado_actual == "este_oeste_rev_amarillo":
+                interseccion.semaforos["norte"].color_actual = "rojo"
+                interseccion.semaforos["sur"].color_actual = "rojo"
+                interseccion.semaforos["este"].color_actual = "rojo"
+                interseccion.semaforos["oeste"].color_actual = "amarillo"
 
     def decidir_aparicion_auto(self):
-        """
-        Decide aleatoriamente si aparece un nuevo auto basado en la frecuencia configurada.
-        """
-        intervalo_random = random.uniform(0.5 * self.intervalo_entre_autos, 1.5 * self.intervalo_entre_autos)
-        return intervalo_random
+        intervalo_aparicion = self.intervalo_entre_autos
+
+        return intervalo_aparicion

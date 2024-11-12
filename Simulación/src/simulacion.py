@@ -1,5 +1,5 @@
 import pygame
-import time
+from time import time
 from src.interseccion import Interseccion
 from src.auto import Auto
 from src.controlador_casi import ControladorCASI
@@ -22,7 +22,7 @@ class Simulacion:
         # Inicialización de intersecciones y lista de autos
         self.intersecciones = [Interseccion((self.centro_x, self.centro_y), config_semaforo)]
         self.autos = []
-        self.ultimo_tiempo_auto = time.time()
+        self.ultimo_tiempo_auto = time()
 
         # Instancia de controlador CASI y renderer
         self.controlador = controlador
@@ -94,9 +94,9 @@ class Simulacion:
 
             # Consultar intervalo para la aparición de autos
             intervalo = self.controlador.decidir_aparicion_auto()
-            if time.time() - self.ultimo_tiempo_auto > self.intervalo_generacion:
+            if time() - self.ultimo_tiempo_auto > self.intervalo_generacion:
                 self.generar_autos()
-                self.ultimo_tiempo_auto = time.time()
+                self.ultimo_tiempo_auto = time()
 
             # Actualizar estados de semáforos y autos
             self.controlador.recopilar_datos()

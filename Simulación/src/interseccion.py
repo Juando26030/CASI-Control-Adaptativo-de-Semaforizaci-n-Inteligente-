@@ -23,9 +23,11 @@ class Interseccion:
         self.semaforos = {}
         for direccion, posicion in posiciones.items():
             if direccion in ["norte", "sur"]:
-                tiempos = config_semaforo["norte_sur"]
+                tiempos = config_semaforo["NS"]  # Cambiar 'norte_sur' a 'NS'
+            elif direccion in ["este", "oeste"]:
+                tiempos = config_semaforo["WE"]  # Cambiar 'este_oeste' a 'WE'
             else:
-                tiempos = config_semaforo["este_oeste"]
+                tiempos = config_semaforo["SN"]  # Agregar 'SN' para el caso sur-norte
             self.semaforos[direccion.lower()] = Semaforo(direccion, tiempos, posicion)
 
     def actualizar_semaforos(self):

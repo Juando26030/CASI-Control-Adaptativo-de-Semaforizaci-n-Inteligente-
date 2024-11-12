@@ -3,15 +3,25 @@
     "car_speed": 2,
     "update_frequency": 1,
     "semaforo_timing": {
-        "norte_sur": {
-            "verde": 120,
-            "amarillo": 10,
-            "rojo": 130
+        "NS": {
+            "verde": 47,
+            "amarillo": 5,
+            "rojo": 1
         },
-        "este_oeste": {
-            "verde": 120,
-            "amarillo": 10,
-            "rojo": 130
+        "WE": {
+            "verde": 20,
+            "amarillo": 5,
+            "rojo": 1
+        },
+        "SN": {
+            "verde": 35,
+            "amarillo": 5,
+            "rojo": 1
+        },
+        "EW": {
+            "verde": 17,
+            "amarillo": 5,
+            "rojo": 1
         }
     }
 }
