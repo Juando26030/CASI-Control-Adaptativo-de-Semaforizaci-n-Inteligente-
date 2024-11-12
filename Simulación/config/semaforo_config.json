@@ -3,7 +3,8 @@
         {
             "id": 1,
             "posicion": [100, 200],
-            "tiempos": {"verde": 10, "amarillo": 3, "rojo": 15}
+            "tiempos": {"verde": 10, "amarillo": 3, "rojo": 15},
+
         },
         {
             "id": 2,

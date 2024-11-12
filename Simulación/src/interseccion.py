@@ -1,37 +1,42 @@
 from src.semaforo import Semaforo
 
-
+# Clase Interseccion para gestionar una intersección con varios semáforos
 class Interseccion:
-    def __init__(self, posicion):
-        self.posicion = posicion  # Centro de la intersección
-        self.semaforos = self.crear_semaforos()
-        self.autos_en_espera = []
-
-    def crear_semaforos(self):
+    def __init__(self, id, config_semaforo):
         """
-        Crea los semáforos en las posiciones correctas para controlar los carriles.
-        """
-        desplazamiento = 60
-        centro_x, centro_y = self.posicion
+        Inicializa una intersección con varios semáforos según la configuración JSON.
 
-        # Definimos los semáforos para cada grupo de carriles
-        semaforos = {
-            "norte": Semaforo((centro_x - desplazamiento, centro_y - 120)),  # Carriles 1-2
-            "este": Semaforo((centro_x + 120, centro_y - desplazamiento)),  # Carriles 5-6
-            "sur": Semaforo((centro_x + desplazamiento, centro_y + 120)),  # Carriles 9-10
-            "oeste": Semaforo((centro_x - 120, centro_y + desplazamiento))  # Carriles 13-14
+        :param id: Identificador de la intersección
+        :param config_semaforo: Configuración de tiempos para los semáforos
+        """
+        self.id = id
+
+        # Posiciones de cada semáforo en la intersección
+        posiciones = {
+            "norte": (self.id[0], self.id[1] - 100),  # 100 píxeles al norte del centro de la intersección
+            "sur": (self.id[0], self.id[1] + 100),
+            "este": (self.id[0] + 100, self.id[1]),
+            "oeste": (self.id[0] - 100, self.id[1])
         }
-        return semaforos
 
-    def actualizar_flujo_trafico(self):
+        # Asignar configuración de tiempos según dirección
+        self.semaforos = {}
+        for direccion, posicion in posiciones.items():
+            if direccion in ["norte", "sur"]:
+                tiempos = config_semaforo["norte_sur"]
+            else:
+                tiempos = config_semaforo["este_oeste"]
+            self.semaforos[direccion.lower()] = Semaforo(direccion, tiempos, posicion)
+
+    def actualizar_semaforos(self):
         """
-        Actualiza los datos de tráfico para cada semáforo.
+        Actualiza el estado de cada semáforo en la intersección.
         """
         for semaforo in self.semaforos.values():
-            semaforo.datos_sensores = len(self.autos_en_espera)
+            semaforo.actualizar_estado()
 
     def reportar_datos_sensores(self):
         """
-        Devuelve los datos de tráfico de todos los semáforos.
+        Simula la recopilación de datos de los sensores en la intersección.
         """
-        return {ubicacion: semaforo.datos_sensores for ubicacion, semaforo in self.semaforos.items()}
+        return {"norte": 5, "sur": 3, "este": 7, "oeste": 4}
