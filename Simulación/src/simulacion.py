@@ -4,35 +4,48 @@ from src.auto import Auto
 from src.controlador_casi import ControladorCASI
 from src.renderer import Renderer
 
-
 class Simulacion:
     def __init__(self, ancho, alto):
         pygame.init()
+        # Configura la ventana ajustable y centrada
         self.ancho = ancho
         self.alto = alto
-        self.pantalla = pygame.display.set_mode((ancho, alto))
+        self.pantalla = pygame.display.set_mode((ancho, alto), pygame.RESIZABLE)
 
-        # Define una disposición en cuadrícula para las intersecciones
-        self.intersecciones = [
-            Interseccion((100, 100)),
-            Interseccion((300, 100)),
-            Interseccion((500, 100)),
-            Interseccion((100, 300)),
-            Interseccion((300, 300))
-        ]
+        # Centro de la pantalla para la disposición en cruz
+        self.intersecciones = [Interseccion((ancho // 2, alto // 2))]
 
-        # Agrega varios autos en movimiento
+        # Generar 16 autos, 4 en cada dirección, uno por subcarril
+        desplazamiento = 60  # Para centrar cada auto en su subcarril
+        centro_x, centro_y = ancho // 2, alto // 2
         self.autos = [
-            Auto([50, 50], 1, 0),
-            Auto([150, 150], 1, 90),
-            Auto([450, 250], 1, 180),
-            Auto([250, 450], 1, 270)
+            # Autos de izquierda a derecha
+            Auto([centro_x - 200, centro_y - desplazamiento * 1.5], 1, 0),
+            Auto([centro_x - 200, centro_y - desplazamiento * 0.5], 1, 0),
+            Auto([centro_x - 200, centro_y + desplazamiento * 0.5], 1, 0),
+            Auto([centro_x - 200, centro_y + desplazamiento * 1.5], 1, 0),
+
+            # Autos de derecha a izquierda
+            Auto([centro_x + 200, centro_y - desplazamiento * 1.5], 1, 180),
+            Auto([centro_x + 200, centro_y - desplazamiento * 0.5], 1, 180),
+            Auto([centro_x + 200, centro_y + desplazamiento * 0.5], 1, 180),
+            Auto([centro_x + 200, centro_y + desplazamiento * 1.5], 1, 180),
+
+            # Autos de arriba a abajo
+            Auto([centro_x - desplazamiento * 1.5, centro_y - 200], 1, 90),
+            Auto([centro_x - desplazamiento * 0.5, centro_y - 200], 1, 90),
+            Auto([centro_x + desplazamiento * 0.5, centro_y - 200], 1, 90),
+            Auto([centro_x + desplazamiento * 1.5, centro_y - 200], 1, 90),
+
+            # Autos de abajo a arriba
+            Auto([centro_x - desplazamiento * 1.5, centro_y + 200], 1, 270),
+            Auto([centro_x - desplazamiento * 0.5, centro_y + 200], 1, 270),
+            Auto([centro_x + desplazamiento * 0.5, centro_y + 200], 1, 270),
+            Auto([centro_x + desplazamiento * 1.5, centro_y + 200], 1, 270)
         ]
 
-        # Instancia del controlador CASI
+        # Instancia del controlador CASI y el renderer
         self.controlador = ControladorCASI(self.intersecciones)
-
-        # Instancia de Renderer para manejar la visualización
         self.renderer = Renderer(self.pantalla)
 
         # Reloj de actualización
@@ -44,6 +57,9 @@ class Simulacion:
                 if evento.type == pygame.QUIT:
                     pygame.quit()
                     exit()
+                elif evento.type == pygame.VIDEORESIZE:
+                    self.ancho, self.alto = evento.size
+                    self.pantalla = pygame.display.set_mode((self.ancho, self.alto), pygame.RESIZABLE)
 
             # Actualizar estados de semáforos y autos
             self.controlador.recopilar_datos()
