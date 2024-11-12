@@ -138,7 +138,8 @@ class Simulacion:
             for auto in self.autos:
                 auto.mover()
             for interseccion in self.intersecciones:
-                interseccion.semaforo.actualizar()
+                for semaforo in interseccion.semaforos.values():
+                    semaforo.actualizar()
 
             # Renderizar usando Renderer
             self.pantalla.fill((255, 255, 255))  # Fondo blanco

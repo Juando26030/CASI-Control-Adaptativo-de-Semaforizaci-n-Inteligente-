@@ -114,19 +114,6 @@ class Renderer:
                 (centro_x + dx - 20, centro_y + 10)
             ])
 
-    def renderizar(self, intersecciones, autos):
-        # Dibujar calles y flechas de dirección
-        self.dibujar_calles()
-        self.dibujar_flechas()
-
-        # Dibujar intersecciones
-        for interseccion in intersecciones:
-            self.dibujar_interseccion(interseccion)
-
-        # Dibujar autos
-        for auto in autos:
-            self.dibujar_auto(auto)
-
     def dibujar_interseccion(self, interseccion):
         # Obtener la imagen del semáforo según el color actual
         imagen_semaforo = self.semaforo_imagenes[interseccion.semaforo.color_actual]
@@ -140,3 +127,25 @@ class Renderer:
         rect = imagen_auto_rotada.get_rect(center=(int(auto.posicion[0]), int(auto.posicion[1])))
         # Dibujar el auto en la posición actual
         self.pantalla.blit(imagen_auto_rotada, rect)
+
+    def dibujar_semaforos(self, interseccion):
+        """
+        Dibuja los semáforos de una intersección en sus posiciones correspondientes.
+        """
+        for semaforo in interseccion.semaforos.values():
+            imagen_semaforo = self.semaforo_imagenes[semaforo.color_actual]
+            rect = imagen_semaforo.get_rect(center=semaforo.posicion)
+            self.pantalla.blit(imagen_semaforo, rect)
+
+    def renderizar(self, intersecciones, autos):
+        # Dibujar calles y flechas de dirección
+        self.dibujar_calles()
+        self.dibujar_flechas()
+
+        # Dibujar intersecciones
+        for interseccion in intersecciones:
+            self.dibujar_semaforos(interseccion)
+
+        # Dibujar autos
+        for auto in autos:
+            self.dibujar_auto(auto)
